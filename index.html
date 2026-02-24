@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger Loader - DevCenterX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-orange: #ff6b00;
+            --brand-blue: #2563eb;
+            --bun-color: #f3a361;
+            --lettuce-color: #64bc3c;
+            --tomato-color: #e33d26;
+            --meat-color: #59371e;
+            --cheese-color: #fcc419;
+        }
+
+        body {
+            background-color: var(--bg-orange);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .header-text {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-text h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .header-text p {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: -5px 0 0 0;
+            text-align: center;
+            color: var(--brand-blue);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .loader-container {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            height: 400px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Estilos de la Hamburguesa */
+        .burger {
+            position: relative;
+            width: 200px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .ingredient {
+            width: 180px;
+            height: 15px;
+            border-radius: 20px;
+            position: absolute;
+            opacity: 0;
+            transform: translateY(-200px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        opacity 0.2s, 
+                        clip-path 0.3s ease-in-out;
+            /* Clip path inicial (completo) */
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+        }
+
+        /* Capas individuales */
+        .top-bun { height: 50px; background: var(--bun-color); border-radius: 100px 100px 10px 10px; z-index: 6; bottom: 105px; position: relative; }
+        .top-bun::after {
+            content: ''; position: absolute; top: 15px; left: 30px; width: 4px; height: 6px;
+            background: rgba(255,255,255,0.5); border-radius: 50%;
+            box-shadow: 20px 5px 0 rgba(255,255,255,0.5), 40px -5px 0 rgba(255,255,255,0.5), 60px 10px 0 rgba(255,255,255,0.5), 80px 0px 0 rgba(255,255,255,0.5), 100px 8px 0 rgba(255,255,255,0.5);
+        }
+        .lettuce { background: var(--lettuce-color); z-index: 5; bottom: 95px; width: 190px; height: 10px; border-radius: 5px; }
+        .tomato { background: var(--tomato-color); z-index: 4; bottom: 85px; height: 10px; }
+        .meat { background: var(--meat-color); z-index: 3; bottom: 70px; height: 25px; }
+        .cheese { background: var(--cheese-color); z-index: 2; bottom: 60px; height: 10px; }
+        .cheese::after { content: ''; position: absolute; right: 20px; top: 5px; width: 15px; height: 15px; background: var(--cheese-color); border-radius: 0 0 5px 5px; }
+        .bottom-bun { height: 35px; background: var(--bun-color); border-radius: 5px 5px 40px 40px; z-index: 1; bottom: 25px; }
+
+        /* Estados de la animación */
+        .animate-drop { opacity: 1 !important; transform: translateY(0) !important; }
+
+        /* Mordiscos (usando clip-path para simular marcas de dientes) */
+        .bite-1 {
+            clip-path: polygon(0% 0%, 75% 0%, 70% 10%, 75% 25%, 70% 40%, 80% 50%, 100% 50%, 100% 100%, 0% 100%) !important;
+        }
+
+        .bite-2 {
+            clip-path: polygon(0% 0%, 50% 0%, 45% 15%, 55% 30%, 45% 45%, 55% 60%, 45% 75%, 50% 100%, 0% 100%) !important;
+        }
+
+        .bite-3 {
+            clip-path: polygon(0% 0%, 20% 0%, 15% 20%, 25% 40%, 15% 60%, 25% 80%, 0% 100%) !important;
+            opacity: 0.5;
+        }
+
+        .eaten-completely {
+            opacity: 0 !important;
+            transform: scale(0.5) !important;
+        }
+
+        .shake-bite {
+            animation: shake-bite 0.2s ease-in-out;
+        }
+
+        @keyframes shake-bite {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-8px) rotate(-2deg); }
+        }
+
+        .loading-text { font-size: 1.5rem; font-weight: 800; color: #333; letter-spacing: 2px; text-transform: uppercase; }
+        .dots::after { content: ''; animation: dots 1.5s infinite; }
+        @keyframes dots { 0% { content: ''; } 33% { content: '.'; } 66% { content: '..'; } 100% { content: '...'; } }
+    </style>
+</head>
+<body>
+
+    <div class="header-text">
+        <h1>BURGER LOADER</h1>
+        <p>DevCenterX</p>
+    </div>
+
+    <div class="loader-container">
+        <div class="burger" id="burger">
+            <div class="ingredient bottom-bun"></div>
+            <div class="ingredient cheese"></div>
+            <div class="ingredient meat"></div>
+            <div class="ingredient tomato"></div>
+            <div class="ingredient lettuce"></div>
+            <div class="ingredient top-bun"></div>
+        </div>
+        
+        <div class="loading-text">
+            CARGANDO<span class="dots"></span>
+        </div>
+    </div>
+
+    <script>
+        const ingredients = document.querySelectorAll('.ingredient');
+        const burgerContainer = document.getElementById('burger');
+
+        function wait(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function animateLoader() {
+            // Resetear todo
+            ingredients.forEach(i => {
+                i.className = i.className.split(' ')[0] + ' ' + i.className.split(' ')[1]; // Mantener clases base
+                i.style.opacity = "0";
+                i.style.transform = "translateY(-200px)";
+            });
+            burgerContainer.classList.remove('shake-bite');
+
+            await wait(500);
+
+            // 1. Montar la hamburguesa
+            const sequence = [0, 1, 2, 3, 4, 5]; 
+            for (let i of sequence) {
+                ingredients[i].classList.add('animate-drop');
+                await wait(200);
+            }
+
+            await wait(1000);
+
+            // 2. Secuencia de Mordiscos
+            const bites = ['bite-1', 'bite-2', 'bite-3'];
+            
+            for (let biteClass of bites) {
+                // Sacudida por cada mordisco
+                burgerContainer.classList.remove('shake-bite');
+                void burgerContainer.offsetWidth; // Force reflow
+                burgerContainer.classList.add('shake-bite');
+
+                // Aplicar mordisco a todos los ingredientes visibles
+                ingredients.forEach(ing => {
+                    ing.classList.add(biteClass);
+                });
+                
+                await wait(600);
+            }
+
+            // 3. Desaparecer (terminado de comer)
+            ingredients.forEach(ing => {
+                ing.classList.add('eaten-completely');
+            });
+
+            await wait(800);
+            
+            // Reiniciar ciclo
+            animateLoader();
+        }
+
+        window.onload = () => {
+            animateLoader();
+        };
+    </script>
+</body>
+</html>
